@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Doggo.Repositories.Utils;
 
 namespace DogGo.Repositories
 {
@@ -31,7 +32,7 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                SELECT Id, Name, OwnerId, Breed
+                SELECT Id, Name, OwnerId, Breed, Notes, ImageUrl
                     FROM Dog";
 
                     SqlDataReader reader = cmd.ExecuteReader();
@@ -45,8 +46,8 @@ namespace DogGo.Repositories
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
-                            //Notes = reader.GetString(reader.GetOrdinal("Notes")),
-                            //ImgUrl = ReaderUtils.GetNullableString(reader, "ImgUrl")
+                            Notes = ReaderUtils.GetNullableString(reader,"Notes"),
+                            ImageUrl = ReaderUtils.GetNullableString(reader, "ImageUrl")
                         };
                         dogs.Add(dog);
                     }
@@ -63,20 +64,22 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        INSERT INTO Dog ([Name], Breed, Notes)
-                           OUTPUT INSTERTED.ID
-                            VALUES (@name, @breed, @notes);";
+                    INSERT INTO Dog ([Name], OwnerId, Breed, Notes, ImageUrl)
+                    OUTPUT INSERTED.ID
+                    VALUES (@name, @ownerId, @breed, @notes, @imageUrl);
+                ";
+
                     cmd.Parameters.AddWithValue("@name", dog.Name);
+                    cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
                     cmd.Parameters.AddWithValue("@breed", dog.Breed);
-                    cmd.Parameters.AddWithValue("@notes", dog.Notes);
+                    cmd.Parameters.AddWithValue("@notes", ReaderUtils.GetNullableParam(dog.Notes));
+                    cmd.Parameters.AddWithValue("@imageUrl", ReaderUtils.GetNullableParam(dog.ImageUrl));
 
                     int id = (int)cmd.ExecuteScalar();
 
                     dog.Id = id;
-
-
                 }
-            }    
+            }
         }
     }
 }
