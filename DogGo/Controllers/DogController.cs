@@ -12,9 +12,9 @@ namespace DogGo.Controllers
     public class DogController : Controller
     {
         private IDogRepository _dogRepo;
-        public DogController(IDogRepository dogRepo)
+        public DogController(IDogRepository doggoRepo)
         {
-            _dogRepo = dogRepo;
+            _dogRepo = doggoRepo;
         }
         // GET: DogController
         public ActionResult Index()
@@ -31,7 +31,9 @@ namespace DogGo.Controllers
         // GET: DogController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            Dog dog = _dogRepo.GetDogById(id);
+            
+            return View(dog);
         }
 
         // GET: DogController/Create
@@ -89,16 +91,18 @@ namespace DogGo.Controllers
         // POST: DogController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(int id, Dog dog)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _dogRepo.DeleteDog(id);
+                return RedirectToAction("Index");
             }
             catch
             {
                 return View();
             }
         }
+
     }
 }
