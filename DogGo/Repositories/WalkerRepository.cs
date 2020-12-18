@@ -99,6 +99,7 @@ namespace DogGo.Repositories
                 }
             }
         }
+        //walkers by neighborhoods
         public List<Walker> GetWalkersInNeighborhood(int neighborhoodId)
         {
             using (SqlConnection conn = Connection)
